@@ -1,10 +1,10 @@
 // Ollama adapter
 
-import type { LLMProvider } from './index.js';
+import type { LanguageModel, Message } from './index.js';
 
-export class OllamaAdapter implements LLMProvider {
-  async generate(prompt: string): Promise<string> {
+export class OllamaAdapter implements LanguageModel {
+  async generate(_prompt: string, _history?: Message[]): Promise<string> {
     // TODO: Implement Ollama integration
-    return '';
+    return 'Ollama response';
   }
 }

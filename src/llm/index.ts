@@ -4,14 +4,21 @@ import { ClaudeAdapter } from './claudeAdapter.js';
 import { GeminiAdapter } from './geminiAdapter.js';
 import { OllamaAdapter } from './ollamaAdapter.js';
 
-export interface LLMProvider {
-  generate(prompt: string): Promise<string>;
+export type MessageRole = 'user' | 'assistant' | 'system';
+
+export interface Message {
+  role: MessageRole;
+  content: string;
+}
+
+export interface LanguageModel {
+  generate(prompt: string, history?: Message[]): Promise<string>;
 }
 
 export type LLMProviderType = 'claude' | 'gemini' | 'ollama';
 
-export function createLLMProvider(type: LLMProviderType): LLMProvider {
-  switch (type) {
+export function getLLM(provider: LLMProviderType): LanguageModel {
+  switch (provider) {
     case 'claude':
       return new ClaudeAdapter();
     case 'gemini':
@@ -19,6 +26,6 @@ export function createLLMProvider(type: LLMProviderType): LLMProvider {
     case 'ollama':
       return new OllamaAdapter();
     default:
-      throw new Error(`Unknown LLM provider type: ${type}`);
+      throw new Error(`Unknown LLM provider type: ${provider}`);
   }
 }

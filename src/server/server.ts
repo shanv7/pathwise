@@ -26,6 +26,32 @@ const wss = new WebSocketServer({ server });
 wss.on('connection', (ws) => {
   logger.info('WebSocket client connected');
 
+  ws.on('message', (data) => {
+    try {
+      const message = JSON.parse(data.toString());
+      
+      if (message.type === 'audioTurn') {
+        // TODO: Implement real-time audio streaming
+        // For now, just log that audioTurn was received
+        logger.info('audioTurn received', {
+          sessionId: message.sessionId,
+          hasAudioChunk: !!message.audioChunk,
+        });
+        
+        // Placeholder response
+        ws.send(
+          JSON.stringify({
+            type: 'audioTurnResponse',
+            status: 'placeholder',
+            message: 'audioTurn received',
+          })
+        );
+      }
+    } catch (error) {
+      logger.error('Error processing WebSocket message:', error);
+    }
+  });
+
   ws.on('close', () => {
     logger.info('WebSocket client disconnected');
   });
