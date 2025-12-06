@@ -1,11 +1,7 @@
-import { useState } from 'react';
-
 interface Scenario {
   id: string;
   name: string;
   description: string;
-  difficulty: 'novice' | 'intermediate' | 'advanced';
-  skillTags: string[];
   characterName: string;
   characterRole: string;
   estimatedTime: string;
@@ -20,75 +16,31 @@ interface ScenarioSelectorProps {
 const mockScenarios: Scenario[] = [
   {
     id: 'def-dev-001',
-    name: 'The Defensive Developer',
+    name: 'Delivering Difficult Feedback',
     description: 'A mid-level engineer has missed multiple deadlines and is deflecting blame. Practice giving clear, specific feedback.',
-    difficulty: 'novice',
-    skillTags: ['difficult_feedback', 'performance_pip'],
     characterName: 'Alex Chen',
     characterRole: 'Software Engineer II',
     estimatedTime: '15-20 min'
   },
   {
     id: 'check-sen-001',
-    name: 'The Checked-Out Senior',
+    name: 'Re-engaging a Disengaged Employee',
     description: 'A previously high-performing senior employee has become disengaged and their attitude is affecting team morale.',
-    difficulty: 'intermediate',
-    skillTags: ['difficult_feedback', 'team_dynamics'],
     characterName: 'Jordan Martinez',
     characterRole: 'Senior Customer Success Manager',
     estimatedTime: '20-25 min'
   },
   {
     id: 'hp-bias-001',
-    name: 'The High Performer with a Bias Complaint',
+    name: 'Navigating a Bias Complaint',
     description: 'Your top performer filed an HR complaint about bias. Navigate this sensitive conversation professionally.',
-    difficulty: 'advanced',
-    skillTags: ['dei_topic', 'conflict_resolution', 'career_development'],
     characterName: 'Priya Sharma',
     characterRole: 'Senior ML Engineer',
     estimatedTime: '25-30 min'
   }
 ];
 
-const skillCategories = [
-  { id: 'difficult_feedback', name: 'Difficult Feedback', icon: '💬', color: 'blue' },
-  { id: 'performance_pip', name: 'Performance & PIP', icon: '📊', color: 'yellow' },
-  { id: 'dei_topic', name: 'DEI Topics', icon: '🌍', color: 'purple' },
-  { id: 'conflict_resolution', name: 'Conflict Resolution', icon: '🤝', color: 'green' }
-];
-
-export default function ScenarioSelector({ onSelectScenario, onBack }: ScenarioSelectorProps) {
-  const [selectedSkill, setSelectedSkill] = useState<string | null>(null);
-  const [selectedDifficulty, setSelectedDifficulty] = useState<string | null>(null);
-
-  const filteredScenarios = mockScenarios.filter(scenario => {
-    const matchesSkill = !selectedSkill || scenario.skillTags.includes(selectedSkill);
-    const matchesDifficulty = !selectedDifficulty || scenario.difficulty === selectedDifficulty;
-    return matchesSkill && matchesDifficulty;
-  });
-
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'novice': return 'text-green-700 bg-green-100 border-green-300';
-      case 'intermediate': return 'text-yellow-700 bg-yellow-100 border-yellow-300';
-      case 'advanced': return 'text-red-700 bg-red-100 border-red-300';
-      default: return 'text-gray-700 bg-gray-100 border-gray-300';
-    }
-  };
-
-  const getDifficultyIcon = (difficulty: string) => {
-    switch (difficulty) {
-      case 'novice': return '⭐';
-      case 'intermediate': return '⭐⭐';
-      case 'advanced': return '⭐⭐⭐';
-      default: return '';
-    }
-  };
-
-  const getSkillColor = (skillId: string) => {
-    const skill = skillCategories.find(s => s.id === skillId);
-    return skill?.color || 'gray';
-  };
+export default function ScenarioSelector({ onSelectScenario }: ScenarioSelectorProps) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -112,8 +64,9 @@ export default function ScenarioSelector({ onSelectScenario, onBack }: ScenarioS
               </div>
             </div>
             
-            {/* Mode Switcher */}
-            <div className="flex items-center space-x-3">
+            {/* Mode Switcher & History Button */}
+            <div className="flex flex-col items-end space-y-3">
+              {/* Mode Switcher */}
               <div className="flex items-center space-x-2 bg-[#293241] rounded-xl p-1 border-2 border-[#98C1D9]">
                 <button
                   className="px-4 py-2 bg-[#98C1D9] text-[#293241] rounded-lg font-bold shadow-md"
@@ -127,139 +80,46 @@ export default function ScenarioSelector({ onSelectScenario, onBack }: ScenarioS
                   👨‍🏫 Coach
                 </button>
               </div>
-            </div>
-          </div>
 
-          {/* Skill Filter Pills */}
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              onClick={() => setSelectedSkill(null)}
-              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
-                selectedSkill === null
-                  ? 'bg-[#EE6C4D] text-white shadow-md'
-                  : 'bg-white text-gray-700 border border-gray-300 hover:border-[#98C1D9]'
-              }`}
-            >
-              All Skills
-            </button>
-            {skillCategories.map((skill) => (
+              {/* History Button */}
               <button
-                key={skill.id}
-                onClick={() => setSelectedSkill(skill.id)}
-                className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all flex items-center space-x-2 ${
-                  selectedSkill === skill.id
-                    ? `bg-${skill.color}-600 text-white shadow-md`
-                    : 'bg-white text-gray-700 border border-gray-300 hover:border-[#98C1D9]'
-                }`}
+                onClick={() => window.location.href = '/history'}
+                className="flex items-center space-x-2 px-4 py-2 bg-[#EE6C4D] hover:bg-[#D85A3A] text-white rounded-lg font-medium transition-colors shadow-md"
               >
-                <span>{skill.icon}</span>
-                <span>{skill.name}</span>
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+                  />
+                </svg>
+                <span>Practice History</span>
               </button>
-            ))}
+            </div>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Difficulty Filter */}
-        <div className="mb-6 flex items-center space-x-4">
-          <span className="text-sm font-medium text-gray-700">Difficulty:</span>
-          <div className="flex space-x-2">
-            <button
-              onClick={() => setSelectedDifficulty(null)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                selectedDifficulty === null
-                  ? 'bg-gray-900 text-white'
-                  : 'bg-white text-gray-700 border border-gray-300 hover:border-gray-400'
-              }`}
-            >
-              All Levels
-            </button>
-            <button
-              onClick={() => setSelectedDifficulty('novice')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                selectedDifficulty === 'novice'
-                  ? 'bg-green-600 text-white'
-                  : 'bg-white text-gray-700 border border-gray-300 hover:border-green-400'
-              }`}
-            >
-              ⭐ Novice
-            </button>
-            <button
-              onClick={() => setSelectedDifficulty('intermediate')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                selectedDifficulty === 'intermediate'
-                  ? 'bg-yellow-600 text-white'
-                  : 'bg-white text-gray-700 border border-gray-300 hover:border-yellow-400'
-              }`}
-            >
-              ⭐⭐ Intermediate
-            </button>
-            <button
-              onClick={() => setSelectedDifficulty('advanced')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                selectedDifficulty === 'advanced'
-                  ? 'bg-red-600 text-white'
-                  : 'bg-white text-gray-700 border border-gray-300 hover:border-red-400'
-              }`}
-            >
-              ⭐⭐⭐ Advanced
-            </button>
-          </div>
-        </div>
-
-        {/* Results Count */}
-        <p className="text-sm text-gray-600 mb-4">
-          {filteredScenarios.length} scenario{filteredScenarios.length !== 1 ? 's' : ''} found
-        </p>
-
         {/* Scenario Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {filteredScenarios.map((scenario) => (
+          {mockScenarios.map((scenario) => (
             <div
               key={scenario.id}
               className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200 hover:border-primary-400 transform hover:-translate-y-1 flex flex-col h-full"
             >
               {/* Card Header */}
               <div className="p-6 pb-4 flex-1 flex flex-col">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex-1">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">{scenario.name}</h3>
-                    <div className={`inline-flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-bold border ${getDifficultyColor(scenario.difficulty)}`}>
-                      <span>{getDifficultyIcon(scenario.difficulty)}</span>
-                      <span>{scenario.difficulty.toUpperCase()}</span>
-                    </div>
-                  </div>
-                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">{scenario.name}</h3>
                 
                 <p className="text-sm text-gray-600 leading-relaxed mb-4">{scenario.description}</p>
-
-                {/* Character Info */}
-                <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg mb-4">
-                  <div className="w-10 h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-bold">
-                    {scenario.characterName.charAt(0)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-gray-900 truncate">{scenario.characterName}</p>
-                    <p className="text-xs text-gray-600 truncate">{scenario.characterRole}</p>
-                  </div>
-                </div>
-
-                {/* Skill Tags */}
-                <div className="flex flex-wrap gap-2 mb-3">
-                  {scenario.skillTags.map((tag) => {
-                    const skill = skillCategories.find(s => s.id === tag);
-                    return (
-                      <span
-                        key={tag}
-                        className={`text-xs px-2 py-1 rounded-md bg-${getSkillColor(tag)}-100 text-${getSkillColor(tag)}-700 font-medium`}
-                      >
-                        {skill?.icon} {skill?.name || tag.replace(/_/g, ' ')}
-                      </span>
-                    );
-                  })}
-                </div>
 
                 {/* Time Estimate */}
                 <div className="flex items-center text-xs text-gray-500 mt-auto">
@@ -289,23 +149,6 @@ export default function ScenarioSelector({ onSelectScenario, onBack }: ScenarioS
           ))}
         </div>
 
-        {filteredScenarios.length === 0 && (
-          <div className="text-center py-16">
-            <svg className="w-24 h-24 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 12h.01M12 12h.01M12 12h.01M12 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <p className="text-lg text-gray-600">No scenarios match your filters</p>
-            <button
-              onClick={() => {
-                setSelectedSkill(null);
-                setSelectedDifficulty(null);
-              }}
-              className="mt-4 px-6 py-2 text-primary-600 hover:text-primary-700 font-medium"
-            >
-              Clear filters
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );

@@ -34,10 +34,11 @@ MANAGER'S LATEST STATEMENT:
 
 YOUR TASK:
 1. Analyze the manager's statement for:
-   - Legal risks (discrimination, harassment, retaliation)
-   - Bias indicators (subjective language, vague criticism, personal attacks)
-   - Policy violations (missing documentation, improper termination language)
-   - Clarity issues (lack of specific examples, actionable feedback)
+   - Legal compliance (avoiding discrimination, harassment, retaliation)
+   - Professionalism (objective language, specific examples, behavior-focused)
+   - Policy adherence (proper documentation, appropriate language)
+   - Psychological safety (supportive tone, growth-oriented)
+   - Clarity (specific examples, actionable feedback)
 
 2. Evaluate using ${framework} framework:
    - Which framework elements are present/missing?
@@ -50,7 +51,8 @@ Respond in JSON format:
 {
   "analysis": "Your professional assessment of what just happened",
   "flags": ["array", "of", "specific", "issues"],
-  "legal_risk_score": 0-100,
+  "legal_compliance_score": 0-100,
+  "psychological_safety_score": 0-100,
   "framework_assessment": {
     "framework": "${framework}",
     "elements_present": ["which framework elements were used well"],
@@ -126,11 +128,11 @@ Similar to SBI but adds explicit next steps for improvement.`;
         suggestedRewrite: parsed.suggested_rewrite
       };
 
-      const legalRiskScore = this.normalizScore(parsed.legal_risk_score);
-      const psychSafetyScore = 100 - legalRiskScore; // Inverse relationship
-      
+      const legalComplianceScore = this.normalizScore(parsed.legal_compliance_score);
+      const psychSafetyScore = this.normalizScore(parsed.psychological_safety_score);
+
       // Use framework score if available, otherwise fall back to clarity assessment
-      const clarityScore = parsed.framework_assessment?.overall_score 
+      const clarityScore = parsed.framework_assessment?.overall_score
         ? this.normalizScore(parsed.framework_assessment.overall_score)
         : this.assessClarity(parsed.flags || []);
 
@@ -138,7 +140,7 @@ Similar to SBI but adds explicit next steps for improvement.`;
         message: '', // HR agent doesn't speak in the conversation
         shadowThought,
         metrics: {
-          legalRisk: legalRiskScore,
+          legalCompliance: legalComplianceScore,
           psychologicalSafety: psychSafetyScore,
           clarityOfFeedback: clarityScore
         }
@@ -154,7 +156,7 @@ Similar to SBI but adds explicit next steps for improvement.`;
           flags: []
         },
         metrics: {
-          legalRisk: 0,
+          legalCompliance: 50,
           psychologicalSafety: 50,
           clarityOfFeedback: 50
         }

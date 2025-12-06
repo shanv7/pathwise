@@ -41,7 +41,7 @@ export interface AgentResponse {
   shadowThought?: ShadowThought;
   metrics?: {
     psychologicalSafety?: number; // 0-100
-    legalRisk?: number; // 0-100
+    legalCompliance?: number; // 0-100 (higher is better)
     clarityOfFeedback?: number; // 0-100
   };
 }

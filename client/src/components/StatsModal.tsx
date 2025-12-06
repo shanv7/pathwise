@@ -83,31 +83,31 @@ export default function StatsModal({ isOpen, onClose, metrics, messageCount }: S
               </p>
             </div>
 
-            {/* Legal Risk */}
+            {/* Legal Compliance */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                   </svg>
-                  <span className="font-medium text-gray-700">Potential Issues</span>
+                  <span className="font-medium text-gray-700">Legal Compliance</span>
                 </div>
-                <span className={`font-bold text-lg ${getScoreColor(metrics.legalRisk, true)}`}>
-                  {Math.round(metrics.legalRisk)}%
+                <span className={`font-bold text-lg ${getScoreColor(metrics.legalCompliance)}`}>
+                  {Math.round(metrics.legalCompliance)}%
                 </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-3">
                 <div
                   className={`h-3 rounded-full transition-all ${
-                    metrics.legalRisk <= 30 ? 'bg-green-500' :
-                    metrics.legalRisk <= 60 ? 'bg-yellow-500' : 'bg-red-500'
+                    metrics.legalCompliance >= 70 ? 'bg-green-500' :
+                    metrics.legalCompliance >= 40 ? 'bg-yellow-500' : 'bg-red-500'
                   }`}
-                  style={{ width: `${metrics.legalRisk}%` }}
+                  style={{ width: `${metrics.legalCompliance}%` }}
                 />
               </div>
               <p className="text-sm text-gray-600">
-                {metrics.legalRisk <= 30 ? 'The conversation seems fair and professional.' :
-                 metrics.legalRisk <= 60 ? 'Some potentially problematic statements detected.' :
+                {metrics.legalCompliance >= 70 ? 'The conversation is fair and professional.' :
+                 metrics.legalCompliance >= 40 ? 'Some potentially problematic statements detected.' :
                  'Significant concerns about fairness or bias.'}
               </p>
             </div>
@@ -152,7 +152,7 @@ export default function StatsModal({ isOpen, onClose, metrics, messageCount }: S
               </li>
               <li className="flex items-start space-x-2">
                 <span className="text-yellow-600 font-bold">•</span>
-                <span><strong>Potential Issues:</strong> Flags for potentially unfair, vague, or biased statements</span>
+                <span><strong>Legal Compliance:</strong> How well the conversation adheres to legal and professional standards</span>
               </li>
               <li className="flex items-start space-x-2">
                 <span className="text-blue-600 font-bold">•</span>

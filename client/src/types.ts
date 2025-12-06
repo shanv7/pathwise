@@ -16,7 +16,7 @@ export interface ShadowThought {
 
 export interface Metrics {
   psychologicalSafety: number;
-  legalRisk: number;
+  legalCompliance: number;
   clarityOfFeedback: number;
 }
 
@@ -47,7 +47,7 @@ export interface ScenarioReport {
   };
   finalMetrics: {
     psychologicalSafety: number;
-    legalRisk: number;
+    legalCompliance: number;
     clarityOfFeedback: number;
   };
   recommendations: string[];

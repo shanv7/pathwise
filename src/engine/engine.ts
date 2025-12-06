@@ -17,7 +17,7 @@ export interface ScenarioTurnResult {
   shadowFeed: ShadowThought[];
   metrics: {
     psychologicalSafety: number;
-    legalRisk: number;
+    legalCompliance: number;
     clarityOfFeedback: number;
   };
 }
@@ -32,7 +32,7 @@ export class ScenarioEngine {
     timestamp: Date;
     managerStatement: string;
     flags: string[];
-    legalRisk: number;
+    legalCompliance: number;
   }> = [];
 
   constructor(llm: LLMProvider) {
@@ -100,12 +100,12 @@ export class ScenarioEngine {
 
     // Log issues for report
     const shadowFlags = result.shadowFeed.flatMap(s => s.flags || []);
-    if (shadowFlags.length > 0 || result.metrics.legalRisk > 20) {
+    if (shadowFlags.length > 0 || result.metrics.legalCompliance < 80) {
       this.issueLog.push({
         timestamp: new Date(),
         managerStatement: managerInput,
         flags: shadowFlags,
-        legalRisk: result.metrics.legalRisk
+        legalCompliance: result.metrics.legalCompliance
       });
     }
 
@@ -157,7 +157,7 @@ export class ScenarioEngine {
    */
   private determineOutcome(metrics: {
     psychologicalSafety: number;
-    legalRisk: number;
+    legalCompliance: number;
     clarityOfFeedback: number;
   }): ScenarioOutcome {
     if (!this.state) return ScenarioOutcome.FAILURE;
@@ -170,11 +170,11 @@ export class ScenarioEngine {
     }
 
     // Check success criteria
-    const meetsLegalRisk = !criteria.maxLegalRisk || metrics.legalRisk <= criteria.maxLegalRisk;
+    const meetsLegalCompliance = !criteria.maxLegalRisk || metrics.legalCompliance >= (100 - criteria.maxLegalRisk);
     const meetsPsychSafety = !criteria.minPsychologicalSafety || metrics.psychologicalSafety >= criteria.minPsychologicalSafety;
     const meetsClarity = !criteria.minClarityScore || metrics.clarityOfFeedback >= criteria.minClarityScore;
 
-    if (meetsLegalRisk && meetsPsychSafety && meetsClarity) {
+    if (meetsLegalCompliance && meetsPsychSafety && meetsClarity) {
       return ScenarioOutcome.SUCCESS;
     }
 
@@ -195,17 +195,17 @@ export class ScenarioEngine {
 
     // Get top 3 issues for "The Cringe List"
     const topIssues = this.issueLog
-      .sort((a, b) => b.legalRisk - a.legalRisk)
+      .sort((a, b) => a.legalCompliance - b.legalCompliance)
       .slice(0, 3)
       .map(issue => ({
         timestamp: issue.timestamp,
         managerStatement: issue.managerStatement,
-        issue: issue.flags.join(', ') || 'High legal risk detected',
-        severity: (issue.legalRisk > 70 ? 'high' : issue.legalRisk > 40 ? 'medium' : 'low') as 'low' | 'medium' | 'high'
+        issue: issue.flags.join(', ') || 'Low legal compliance detected',
+        severity: (issue.legalCompliance < 30 ? 'high' : issue.legalCompliance < 60 ? 'medium' : 'low') as 'low' | 'medium' | 'high'
       }));
 
     // Behavioral analysis
-    const triggeredMoments = this.issueLog.filter(i => i.legalRisk > 50).length;
+    const triggeredMoments = this.issueLog.filter(i => i.legalCompliance < 50).length;
     const calmMoments = this.state.turnCount - triggeredMoments;
 
     const behavioralAnalysis = {
@@ -239,7 +239,7 @@ export class ScenarioEngine {
     const recommendations: string[] = [];
     const metrics = this.state.finalMetrics;
 
-    if (metrics.legalRisk > 50) {
+    if (metrics.legalCompliance < 50) {
       recommendations.push('CRITICAL: Review company policies on discrimination and harassment. Consider HR training.');
     }
 

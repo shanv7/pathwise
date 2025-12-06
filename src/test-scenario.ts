@@ -90,7 +90,7 @@ async function testScenarioEngine() {
       logger.info('--- LIVE METRICS ---');
       const metrics = result.metrics;
       logger.info(`  Psychological Safety: ${metrics.psychologicalSafety.toFixed(1)}/100 ${getMetricIndicator(metrics.psychologicalSafety)}`);
-      logger.info(`  Legal Risk: ${metrics.legalRisk.toFixed(1)}/100 ${getRiskIndicator(metrics.legalRisk)}`);
+      logger.info(`  Legal Compliance: ${metrics.legalCompliance.toFixed(1)}/100 ${getMetricIndicator(metrics.legalCompliance)}`);
       logger.info(`  Clarity of Feedback: ${metrics.clarityOfFeedback.toFixed(1)}/100 ${getMetricIndicator(metrics.clarityOfFeedback)}`);
 
       // Wait between turns to avoid rate limiting
@@ -132,7 +132,7 @@ async function testScenarioEngine() {
 
     logger.info('\n--- FINAL METRICS ---');
     logger.info(`Psychological Safety: ${report.finalMetrics.psychologicalSafety.toFixed(1)}/100`);
-    logger.info(`Legal Risk: ${report.finalMetrics.legalRisk.toFixed(1)}/100`);
+    logger.info(`Legal Compliance: ${report.finalMetrics.legalCompliance.toFixed(1)}/100`);
     logger.info(`Clarity of Feedback: ${report.finalMetrics.clarityOfFeedback.toFixed(1)}/100`);
 
     logger.info('\n--- RECOMMENDATIONS FOR NEXT SESSION ---');

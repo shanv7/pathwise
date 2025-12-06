@@ -18,20 +18,20 @@ export default function ScenarioEndModal({ isOpen, onStartNew, report, metrics, 
   const calculateScore = () => {
     if (wasAbandoned) {
       // Abandoned scenarios get a maximum of 40% (or actual average if lower)
-      const rawAverage = (metrics.psychologicalSafety + (100 - metrics.legalRisk) + metrics.clarityOfFeedback) / 3;
+      const rawAverage = (metrics.psychologicalSafety + metrics.legalCompliance + metrics.clarityOfFeedback) / 3;
       return Math.min(40, Math.round(rawAverage));
     }
 
     if (report?.finalMetrics) {
       return Math.round((
         report.finalMetrics.psychologicalSafety +
-        (100 - report.finalMetrics.legalRisk) +
+        report.finalMetrics.legalCompliance +
         report.finalMetrics.clarityOfFeedback
       ) / 3);
     }
 
     // Fallback to current metrics
-    return Math.round((metrics.psychologicalSafety + (100 - metrics.legalRisk) + metrics.clarityOfFeedback) / 3);
+    return Math.round((metrics.psychologicalSafety + metrics.legalCompliance + metrics.clarityOfFeedback) / 3);
   };
 
   const averageScore = calculateScore();
@@ -92,17 +92,17 @@ export default function ScenarioEndModal({ isOpen, onStartNew, report, metrics, 
               </div>
             </div>
 
-            {/* Low Issues */}
+            {/* Legal Compliance */}
             <div className="bg-white border-2 border-gray-200 rounded-lg p-4 text-center">
-              <div className="text-sm font-medium text-gray-600 mb-2">Issues Avoided</div>
-              <div className="text-3xl font-bold text-gray-900">{Math.round(100 - finalMetrics.legalRisk)}%</div>
+              <div className="text-sm font-medium text-gray-600 mb-2">Legal Compliance</div>
+              <div className="text-3xl font-bold text-gray-900">{Math.round(finalMetrics.legalCompliance)}%</div>
               <div className="mt-3 w-full bg-gray-200 rounded-full h-2">
                 <div
                   className={`h-2 rounded-full ${
-                    finalMetrics.legalRisk <= 30 ? 'bg-green-500' :
-                    finalMetrics.legalRisk <= 60 ? 'bg-yellow-500' : 'bg-red-500'
+                    finalMetrics.legalCompliance >= 70 ? 'bg-green-500' :
+                    finalMetrics.legalCompliance >= 40 ? 'bg-yellow-500' : 'bg-red-500'
                   }`}
-                  style={{ width: `${100 - finalMetrics.legalRisk}%` }}
+                  style={{ width: `${finalMetrics.legalCompliance}%` }}
                 />
               </div>
             </div>
@@ -164,7 +164,7 @@ export default function ScenarioEndModal({ isOpen, onStartNew, report, metrics, 
                   </li>
                 )}
 
-                {finalMetrics.legalRisk <= 40 ? (
+                {finalMetrics.legalCompliance >= 60 ? (
                   <li className="flex items-start space-x-2">
                     <span className="text-green-600">✓</span>
                     <span>Your feedback was fair and professional</span>

@@ -70,7 +70,7 @@ PERFORMANCE MANAGEMENT GUIDELINES:
       // Display current metrics
       logger.info('\n--- LIVE METRICS ---');
       logger.info(`Psychological Safety: ${result.metrics.psychologicalSafety.toFixed(1)}/100`);
-      logger.info(`Legal Risk: ${result.metrics.legalRisk.toFixed(1)}/100`);
+      logger.info(`Legal Compliance: ${result.metrics.legalCompliance.toFixed(1)}/100`);
       logger.info(`Clarity of Feedback: ${result.metrics.clarityOfFeedback.toFixed(1)}/100`);
 
       // Wait a bit between turns to avoid rate limiting
@@ -89,7 +89,7 @@ PERFORMANCE MANAGEMENT GUIDELINES:
     logger.info(`Shadow thoughts collected: ${finalState.shadowChannel.length}`);
     logger.info(`\nFinal Metrics:`);
     logger.info(`  Psychological Safety: ${finalState.currentMetrics.psychologicalSafety.toFixed(1)}/100`);
-    logger.info(`  Legal Risk: ${finalState.currentMetrics.legalRisk.toFixed(1)}/100`);
+    logger.info(`  Legal Compliance: ${finalState.currentMetrics.legalCompliance.toFixed(1)}/100`);
     logger.info(`  Clarity of Feedback: ${finalState.currentMetrics.clarityOfFeedback.toFixed(1)}/100`);
 
     logger.info('\n✅ Multi-agent system test completed!');

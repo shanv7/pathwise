@@ -65,9 +65,10 @@ export default function ScenarioConfigurator() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [config, setConfig] = useState<ScenarioConfig | null>(null);
-  const [activeTab, setActiveTab] = useState<'character' | 'situation' | 'goals' | 'criteria'>('character');
+  const [activeTab, setActiveTab] = useState<'character' | 'situation' | 'goals'>('character');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [difficultyLevel, setDifficultyLevel] = useState(1);
 
   useEffect(() => {
     fetchScenario();
@@ -78,6 +79,10 @@ export default function ScenarioConfigurator() {
       const response = await fetch(`http://localhost:3000/api/scenarios/${id}`);
       const data = await response.json();
       setConfig(data);
+      // Initialize difficulty level from config
+      if (data.difficulty === 'novice') setDifficultyLevel(1);
+      else if (data.difficulty === 'intermediate') setDifficultyLevel(3);
+      else setDifficultyLevel(5);
     } catch (error) {
       console.error('Failed to fetch scenario:', error);
     } finally {
@@ -128,7 +133,7 @@ export default function ScenarioConfigurator() {
                 </svg>
               </button>
               <div>
-                <h1 className="text-3xl font-black text-[#293241]">{config.name}</h1>
+                <h1 className="text-3xl font-black text-[#293241]">{config.characterBio.name}</h1>
                 <p className="text-sm text-[#3D5A80] font-semibold">🎨 Tweak personalities & prompt levers</p>
               </div>
             </div>
@@ -172,8 +177,7 @@ export default function ScenarioConfigurator() {
             {[
               { key: 'character', label: 'Character Personality', icon: '🎭' },
               { key: 'situation', label: 'Situation & Context', icon: '📋' },
-              { key: 'goals', label: 'Goals & Outcomes', icon: '🎯' },
-              { key: 'criteria', label: 'Success Criteria', icon: '✅' }
+              { key: 'goals', label: 'Goals & Outcomes', icon: '🎯' }
             ].map((tab) => (
               <button
                 key={tab.key}
@@ -196,6 +200,46 @@ export default function ScenarioConfigurator() {
       <div className="max-w-7xl mx-auto px-6 py-8 relative">
         {activeTab === 'character' && (
           <div className="space-y-6 animate-fade-in">
+            {/* Difficulty Slider */}
+            <div className="bg-white rounded-2xl shadow-lg border-2 border-[#98C1D9] p-5 max-w-sm">
+              <div className="flex items-center space-x-3 mb-3">
+                <span className="text-lg">📊</span>
+                <h3 className="text-xs font-black text-[#293241] uppercase tracking-wide">Difficulty</h3>
+                <div className="bg-[#3D5A80] px-2 py-0.5 rounded-full">
+                  <span className="text-white font-bold text-xs">{difficultyLevel} / 5</span>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-1.5">
+                {[1, 2, 3, 4, 5].map((level) => {
+                  const isSelected = level <= difficultyLevel;
+                  return (
+                    <button
+                      key={level}
+                      onClick={() => {
+                        setDifficultyLevel(level);
+                        let difficulty: 'novice' | 'intermediate' | 'advanced';
+                        if (level <= 2) difficulty = 'novice';
+                        else if (level <= 4) difficulty = 'intermediate';
+                        else difficulty = 'advanced';
+                        setConfig({ ...config, difficulty });
+                      }}
+                      className={`flex-1 h-2.5 rounded-full transition-all hover:scale-y-150 cursor-pointer ${
+                        isSelected 
+                          ? level <= 2 ? 'bg-green-500' : level <= 4 ? 'bg-yellow-500' : 'bg-red-500'
+                          : 'bg-gray-200 hover:bg-gray-300'
+                      }`}
+                    />
+                  );
+                })}
+              </div>
+              
+              <div className="flex justify-between mt-1.5 text-[10px] text-[#3D5A80] font-semibold">
+                <span>Easy</span>
+                <span>Hard</span>
+              </div>
+            </div>
+
             {/* Character Identity */}
             <div className="bg-white rounded-3xl shadow-xl border-3 border-[#98C1D9] p-8 transform hover:scale-[1.01] transition-all">
               <h3 className="text-2xl font-black text-[#293241] mb-6 flex items-center space-x-3">
@@ -491,15 +535,242 @@ export default function ScenarioConfigurator() {
           </div>
         )}
 
-        {/* Add other tabs here (situation, goals, criteria) - simplified for now */}
-        {activeTab !== 'character' && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
-            <p className="text-gray-600">
-              {activeTab === 'situation' && '📋 Situation & Context configuration coming soon...'}
-              {activeTab === 'goals' && '🎯 Goals & Outcomes configuration coming soon...'}
-              {activeTab === 'criteria' && '✅ Success Criteria configuration coming soon...'}
-            </p>
-            <p className="text-sm text-gray-500 mt-2">Focus on Character tab for now - that's where the AI personality magic happens!</p>
+        {/* Situation & Context Tab */}
+        {activeTab === 'situation' && (
+          <div className="space-y-6 animate-fade-in">
+            {/* Detailed Scenario Context */}
+            <div className="bg-white rounded-3xl shadow-xl border-3 border-[#98C1D9] p-8">
+              <h3 className="text-2xl font-black text-[#293241] mb-6 flex items-center space-x-3">
+                <span className="text-4xl">📋</span>
+                <span>Detailed Situation & Context</span>
+              </h3>
+              
+              <div className="space-y-6">
+                {/* Full Scenario Description */}
+                <div>
+                  <label className="block text-sm font-bold text-[#3D5A80] mb-2 uppercase tracking-wide">Full Scenario Background</label>
+                  <textarea
+                    value={config.situationBrief.whatHappened}
+                    onChange={(e) => setConfig({
+                      ...config,
+                      situationBrief: { ...config.situationBrief, whatHappened: e.target.value }
+                    })}
+                    rows={8}
+                    className="w-full px-4 py-3 border-2 border-[#98C1D9] rounded-xl focus:outline-none focus:ring-4 focus:ring-[#98C1D9] focus:ring-opacity-30 focus:border-[#3D5A80] transition-all text-[#293241]"
+                    placeholder="Provide the full context of the situation. Include background on the relationship, recent events, and what has led to this conversation..."
+                  />
+                  <p className="text-xs text-[#3D5A80] mt-2">
+                    💡 This is the detailed scenario that sets up the conversation. Be specific about relationships, history, and current circumstances.
+                  </p>
+                </div>
+
+                {/* Organization Context */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-[#3D5A80] mb-2">Company Name</label>
+                    <input
+                      type="text"
+                      value={config.orgContext.companyName}
+                      onChange={(e) => setConfig({
+                        ...config,
+                        orgContext: { ...config.orgContext, companyName: e.target.value }
+                      })}
+                      className="w-full px-4 py-2 border-2 border-[#98C1D9] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3D5A80]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-[#3D5A80] mb-2">Industry</label>
+                    <input
+                      type="text"
+                      value={config.orgContext.industry}
+                      onChange={(e) => setConfig({
+                        ...config,
+                        orgContext: { ...config.orgContext, industry: e.target.value }
+                      })}
+                      className="w-full px-4 py-2 border-2 border-[#98C1D9] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3D5A80]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-[#3D5A80] mb-2">Team Name</label>
+                    <input
+                      type="text"
+                      value={config.orgContext.teamName}
+                      onChange={(e) => setConfig({
+                        ...config,
+                        orgContext: { ...config.orgContext, teamName: e.target.value }
+                      })}
+                      className="w-full px-4 py-2 border-2 border-[#98C1D9] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3D5A80]"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-[#3D5A80] mb-2">Company Size</label>
+                    <input
+                      type="text"
+                      value={config.orgContext.companySize}
+                      onChange={(e) => setConfig({
+                        ...config,
+                        orgContext: { ...config.orgContext, companySize: e.target.value }
+                      })}
+                      className="w-full px-4 py-2 border-2 border-[#98C1D9] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#3D5A80]"
+                    />
+                  </div>
+                </div>
+
+                {/* Manager's Goal */}
+                <div>
+                  <label className="block text-sm font-bold text-[#3D5A80] mb-2 uppercase tracking-wide">Manager's Goal for This Conversation</label>
+                  <textarea
+                    value={config.situationBrief.managerGoal}
+                    onChange={(e) => setConfig({
+                      ...config,
+                      situationBrief: { ...config.situationBrief, managerGoal: e.target.value }
+                    })}
+                    rows={3}
+                    className="w-full px-4 py-3 border-2 border-[#98C1D9] rounded-xl focus:outline-none focus:ring-4 focus:ring-[#98C1D9] focus:ring-opacity-30 focus:border-[#3D5A80] transition-all text-[#293241]"
+                    placeholder="What is the manager trying to achieve in this conversation?"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Recent Events */}
+            <div className="bg-[#E0FBFC] rounded-3xl shadow-xl border-3 border-[#98C1D9] p-8">
+              <h4 className="font-black text-[#293241] mb-4 flex items-center space-x-2 text-xl">
+                <span>📅</span>
+                <span>Recent Events & Context</span>
+              </h4>
+              
+              {config.orgContext.recentEvents.map((event, idx) => (
+                <div key={idx} className="mb-3 flex items-start space-x-2">
+                  <input
+                    type="text"
+                    value={event}
+                    onChange={(e) => {
+                      const newEvents = [...config.orgContext.recentEvents];
+                      newEvents[idx] = e.target.value;
+                      setConfig({
+                        ...config,
+                        orgContext: { ...config.orgContext, recentEvents: newEvents }
+                      });
+                    }}
+                    className="flex-1 px-4 py-2 border-2 border-[#98C1D9] rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#3D5A80]"
+                  />
+                  <button
+                    onClick={() => {
+                      const newEvents = config.orgContext.recentEvents.filter((_, i) => i !== idx);
+                      setConfig({
+                        ...config,
+                        orgContext: { ...config.orgContext, recentEvents: newEvents }
+                      });
+                    }}
+                    className="p-2 text-[#EE6C4D] hover:bg-white rounded-xl transition-colors font-bold"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+              
+              <button
+                onClick={() => setConfig({
+                  ...config,
+                  orgContext: {
+                    ...config.orgContext,
+                    recentEvents: [...config.orgContext.recentEvents, 'New event']
+                  }
+                })}
+                className="mt-2 w-full py-3 text-sm text-[#3D5A80] hover:bg-white border-2 border-[#98C1D9] rounded-xl transition-colors font-bold"
+              >
+                + Add Recent Event
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Goals & Outcomes Tab */}
+        {activeTab === 'goals' && (
+          <div className="space-y-6 animate-fade-in">
+            {/* Primary Goal */}
+            <div className="bg-gradient-to-r from-[#3D5A80] to-[#98C1D9] rounded-3xl shadow-xl p-8 text-white">
+              <h3 className="text-2xl font-black mb-4 flex items-center space-x-3">
+                <span className="text-4xl">🎯</span>
+                <span>Primary Objective</span>
+              </h3>
+              <textarea
+                value={config.hiddenGoals.primaryGoal}
+                onChange={(e) => setConfig({
+                  ...config,
+                  hiddenGoals: { ...config.hiddenGoals, primaryGoal: e.target.value }
+                })}
+                rows={3}
+                className="w-full px-4 py-3 border-2 border-white/30 rounded-xl bg-white/10 focus:outline-none focus:ring-4 focus:ring-white/30 text-white placeholder-white/60"
+                placeholder="What is the main goal the learner should achieve?"
+              />
+            </div>
+
+            {/* Key Outcomes - 3 Bullets */}
+            <div className="bg-white rounded-3xl shadow-xl border-3 border-[#98C1D9] p-8">
+              <h3 className="text-2xl font-black text-[#293241] mb-6 flex items-center space-x-3">
+                <span className="text-4xl">✨</span>
+                <span>Key Outcomes (3 Goals)</span>
+              </h3>
+              
+              <div className="space-y-4">
+                {config.hiddenGoals.secondaryGoals.slice(0, 3).map((goal, idx) => (
+                  <div key={idx} className="flex items-start space-x-4">
+                    <div className="w-10 h-10 bg-gradient-to-br from-[#EE6C4D] to-[#ff8a73] rounded-full flex items-center justify-center text-white font-black text-lg flex-shrink-0">
+                      {idx + 1}
+                    </div>
+                    <input
+                      type="text"
+                      value={goal}
+                      onChange={(e) => {
+                        const newGoals = [...config.hiddenGoals.secondaryGoals];
+                        newGoals[idx] = e.target.value;
+                        setConfig({
+                          ...config,
+                          hiddenGoals: { ...config.hiddenGoals, secondaryGoals: newGoals }
+                        });
+                      }}
+                      className="flex-1 px-4 py-3 border-2 border-[#98C1D9] rounded-xl focus:outline-none focus:ring-4 focus:ring-[#98C1D9] focus:ring-opacity-30 focus:border-[#3D5A80] transition-all text-[#293241] font-medium"
+                      placeholder={`Goal ${idx + 1}`}
+                    />
+                  </div>
+                ))}
+                
+                {config.hiddenGoals.secondaryGoals.length < 3 && (
+                  <button
+                    onClick={() => setConfig({
+                      ...config,
+                      hiddenGoals: {
+                        ...config.hiddenGoals,
+                        secondaryGoals: [...config.hiddenGoals.secondaryGoals, 'New goal']
+                      }
+                    })}
+                    className="w-full py-3 text-[#3D5A80] hover:bg-[#E0FBFC] border-2 border-dashed border-[#98C1D9] rounded-xl transition-colors font-bold"
+                  >
+                    + Add Goal (up to 3)
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Ideal Outcome */}
+            <div className="bg-green-50 rounded-3xl shadow-xl border-3 border-green-200 p-8">
+              <h4 className="font-black text-green-900 mb-4 flex items-center space-x-2 text-xl">
+                <span>🏆</span>
+                <span>What Success Looks Like</span>
+              </h4>
+              <textarea
+                value={config.hiddenGoals.idealOutcome}
+                onChange={(e) => setConfig({
+                  ...config,
+                  hiddenGoals: { ...config.hiddenGoals, idealOutcome: e.target.value }
+                })}
+                rows={3}
+                className="w-full px-4 py-3 border-2 border-green-300 rounded-xl bg-white focus:outline-none focus:ring-4 focus:ring-green-200 text-green-900"
+                placeholder="Describe what a successful conversation outcome would look like..."
+              />
+            </div>
           </div>
         )}
       </div>

@@ -31,13 +31,13 @@ export default function CoachDashboard({ shadowThoughts, metrics }: CoachDashboa
       });
     }
 
-    // Legal Risk recommendations
-    if (metrics.legalRisk > 60) {
+    // Legal Compliance recommendations
+    if (metrics.legalCompliance < 40) {
       recs.push({
         type: 'danger',
         text: '🚨 Avoid vague language! Use specific examples with dates and observable behaviors.'
       });
-    } else if (metrics.legalRisk > 30) {
+    } else if (metrics.legalCompliance < 70) {
       recs.push({
         type: 'warning',
         text: '⚠️ Be more specific: Use the SBI framework (Situation-Behavior-Impact).'
@@ -68,7 +68,7 @@ export default function CoachDashboard({ shadowThoughts, metrics }: CoachDashboa
       items.push('Schedule a 1:1 to rebuild trust and understand their perspective');
     }
 
-    if (metrics.legalRisk > 40) {
+    if (metrics.legalCompliance < 60) {
       items.push('Document specific examples with dates, times, and observable behaviors');
       items.push('Review company performance management policy');
     }
@@ -144,11 +144,10 @@ export default function CoachDashboard({ shadowThoughts, metrics }: CoachDashboa
               color={metrics.psychologicalSafety >= 70 ? 'green' : metrics.psychologicalSafety >= 50 ? 'yellow' : 'red'}
             />
             <MetricCard
-              title="Legal Risk"
-              value={metrics.legalRisk}
-              description="Potential legal exposure"
-              color={metrics.legalRisk <= 30 ? 'green' : metrics.legalRisk <= 60 ? 'yellow' : 'red'}
-              inverse
+              title="Legal Compliance"
+              value={metrics.legalCompliance}
+              description="Legal & professional standards"
+              color={metrics.legalCompliance >= 70 ? 'green' : metrics.legalCompliance >= 40 ? 'yellow' : 'red'}
             />
             <MetricCard
               title="Clarity of Feedback"

@@ -5,9 +5,12 @@ import CoachDashboard from './components/CoachDashboard';
 import StatsModal from './components/StatsModal';
 import ScenarioEndModal from './components/ScenarioEndModal';
 import CoachHome from './components/CoachHome';
+import ClientScenarios from './components/ClientScenarios';
 import ScenarioConfigurator from './components/ScenarioConfigurator';
 import ScenarioSelector from './components/ScenarioSelector';
 import ScenarioBriefing from './components/ScenarioBriefing';
+import PracticeHistory from './components/PracticeHistory';
+import ScenarioAnalytics from './components/ScenarioAnalytics';
 import { useWebSocket } from './hooks/useWebSocket';
 import type { Message, ShadowThought, Metrics } from './types';
 
@@ -31,11 +34,14 @@ function App() {
         <Route path="/scenario/:id" element={<ScenarioBriefingWrapper />} />
         <Route path="/simulation/:scenarioId" element={<SimulationView />} />
         <Route path="/simulation" element={<SimulationView />} /> {/* Fallback for default scenario */}
+        <Route path="/history" element={<PracticeHistory />} />
 
         {/* COACH FLOW - Setup & Configuration */}
         <Route path="/coach" element={<CoachHome />} />
+        <Route path="/coach/client/:clientId" element={<ClientScenarios />} />
         <Route path="/coach/scenario/:id/configure" element={<ScenarioConfigurator />} />
         <Route path="/coach/scenario/:id/test" element={<SimulationView />} />
+        <Route path="/coach/scenario/:id/analytics" element={<ScenarioAnalytics />} />
       </Routes>
     </BrowserRouter>
   );
@@ -110,7 +116,7 @@ function SimulationView() {
   const [shadowThoughts, setShadowThoughts] = useState<ShadowThought[]>([]);
   const [metrics, setMetrics] = useState<Metrics>({
     psychologicalSafety: 100,
-    legalRisk: 0,
+    legalCompliance: 100,
     clarityOfFeedback: 100,
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -241,7 +247,7 @@ function SimulationView() {
     setShadowThoughts([]);
     setMetrics({
       psychologicalSafety: 100,
-      legalRisk: 0,
+      legalCompliance: 100,
       clarityOfFeedback: 100,
     });
     setIsLoading(false);
@@ -273,30 +279,53 @@ function SimulationView() {
               </Link>
             </div>
 
-            <div className="flex items-center space-x-4">
-              {/* Mode Switcher */}
-              <div className="flex items-center space-x-2 bg-[#293241] rounded-lg p-1">
-                <Link
-                  to="/"
-                  className="px-4 py-2 text-sm font-medium rounded-md transition-colors text-[#E0FBFC] hover:bg-[#3D5A80]"
-                >
-                  🎓 Learner
-                </Link>
-                <Link
-                  to="/coach"
-                  className="px-4 py-2 text-sm font-medium rounded-md transition-colors text-[#E0FBFC] hover:bg-[#3D5A80]"
-                >
-                  👨‍🏫 Coach
-                </Link>
+            <div className="flex flex-col items-end space-y-3">
+              <div className="flex items-center space-x-4">
+                {/* Mode Switcher */}
+                <div className="flex items-center space-x-2 bg-[#293241] rounded-lg p-1">
+                  <Link
+                    to="/"
+                    className="px-4 py-2 text-sm font-medium rounded-md transition-colors text-[#E0FBFC] hover:bg-[#3D5A80]"
+                  >
+                    🎓 Learner
+                  </Link>
+                  <Link
+                    to="/coach"
+                    className="px-4 py-2 text-sm font-medium rounded-md transition-colors text-[#E0FBFC] hover:bg-[#3D5A80]"
+                  >
+                    👨‍🏫 Coach
+                  </Link>
+                </div>
+
+                {/* Connection Status */}
+                <div className="flex items-center space-x-2">
+                  <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-400' : 'bg-red-400'}`} />
+                  <span className="text-sm text-[#E0FBFC]">
+                    {isConnected ? 'Connected' : 'Disconnected'}
+                  </span>
+                </div>
               </div>
 
-              {/* Connection Status */}
-              <div className="flex items-center space-x-2">
-                <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-400' : 'bg-red-400'}`} />
-                <span className="text-sm text-[#E0FBFC]">
-                  {isConnected ? 'Connected' : 'Disconnected'}
-                </span>
-              </div>
+              {/* History Button */}
+              <Link
+                to="/history"
+                className="flex items-center space-x-2 px-4 py-2 bg-[#EE6C4D] hover:bg-[#D85A3A] text-white rounded-lg font-medium transition-colors shadow-md"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+                  />
+                </svg>
+                <span>Practice History</span>
+              </Link>
             </div>
           </div>
           {error && (

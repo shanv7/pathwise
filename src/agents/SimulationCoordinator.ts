@@ -17,7 +17,7 @@ export interface SimulationState {
   shadowChannel: ShadowThought[];
   currentMetrics: {
     psychologicalSafety: number;
-    legalRisk: number;
+    legalCompliance: number;
     clarityOfFeedback: number;
   };
   turnCount: number;
@@ -49,7 +49,7 @@ export class SimulationCoordinator {
       shadowChannel: [],
       currentMetrics: {
         psychologicalSafety: 100,
-        legalRisk: 0,
+        legalCompliance: 100,
         clarityOfFeedback: 100
       },
       turnCount: 0
@@ -120,7 +120,7 @@ export class SimulationCoordinator {
     if (hrResponse.metrics) {
       this.state.currentMetrics = {
         psychologicalSafety: hrResponse.metrics.psychologicalSafety ?? this.state.currentMetrics.psychologicalSafety,
-        legalRisk: hrResponse.metrics.legalRisk ?? this.state.currentMetrics.legalRisk,
+        legalCompliance: hrResponse.metrics.legalCompliance ?? this.state.currentMetrics.legalCompliance,
         clarityOfFeedback: hrResponse.metrics.clarityOfFeedback ?? this.state.currentMetrics.clarityOfFeedback
       };
     }
@@ -160,7 +160,7 @@ export class SimulationCoordinator {
       shadowChannel: [],
       currentMetrics: {
         psychologicalSafety: 100,
-        legalRisk: 0,
+        legalCompliance: 100,
         clarityOfFeedback: 100
       },
       turnCount: 0

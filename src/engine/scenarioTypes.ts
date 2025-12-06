@@ -150,7 +150,7 @@ export interface ScenarioState {
   // Outcome tracking
   finalMetrics?: {
     psychologicalSafety: number;
-    legalRisk: number;
+    legalCompliance: number;
     clarityOfFeedback: number;
   };
 
@@ -189,7 +189,7 @@ export interface ScenarioReport {
   // Final metrics
   finalMetrics: {
     psychologicalSafety: number;
-    legalRisk: number;
+    legalCompliance: number;
     clarityOfFeedback: number;
   };
 

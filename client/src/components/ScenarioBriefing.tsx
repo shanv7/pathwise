@@ -77,22 +77,8 @@ export default function ScenarioBriefing({
         <div className="space-y-6">
           {/* Scenario Overview */}
           <div className="bg-gradient-to-r from-primary-50 to-blue-50 border-l-4 border-primary-600 p-6 rounded-r-lg">
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">{scenarioName}</h3>
-            <p className="text-gray-700 mb-4">{description}</p>
-            <div className="flex items-center space-x-4 text-sm">
-              <span className={`px-3 py-1 rounded-full font-medium ${
-                difficulty === 'novice' ? 'bg-green-100 text-green-800' :
-                difficulty === 'intermediate' ? 'bg-yellow-100 text-yellow-800' :
-                'bg-red-100 text-red-800'
-              }`}>
-                {difficulty.charAt(0).toUpperCase() + difficulty.slice(1)}
-              </span>
-              {skillTags.map((tag, idx) => (
-                <span key={idx} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
-                  {tag.replace(/_/g, ' ')}
-                </span>
-              ))}
-            </div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">{characterBio.name}</h3>
+            <p className="text-gray-700">{description}</p>
           </div>
 
           {/* Organization Context */}
@@ -153,7 +139,7 @@ export default function ScenarioBriefing({
         <div className="space-y-6">
           {/* Character Overview */}
           <div className="bg-white border-2 border-gray-300 rounded-lg p-6">
-            <div className="flex items-start space-x-4 mb-4">
+            <div className="flex items-start space-x-4">
               <div className="w-16 h-16 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
                 {characterBio.name.charAt(0)}
               </div>
@@ -161,108 +147,82 @@ export default function ScenarioBriefing({
                 <h3 className="text-xl font-bold text-gray-900">{characterBio.name}</h3>
                 <p className="text-gray-600">{characterBio.role}</p>
                 <p className="text-sm text-gray-500">Tenure: {characterBio.tenure}</p>
-                <span className="inline-block mt-2 px-3 py-1 bg-purple-100 text-purple-800 text-xs font-medium rounded-full">
-                  {characterBio.personaType.replace(/_/g, ' ')}
-                </span>
               </div>
-            </div>
-
-            {characterBio.identityDimensions && (
-              <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-                <p className="text-sm text-blue-900"><strong>Context:</strong> {characterBio.identityDimensions}</p>
-                {characterBio.personalCircumstances && (
-                  <p className="text-sm text-blue-900 mt-2"><strong>Current situation:</strong> {characterBio.personalCircumstances}</p>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Psychological Profile */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Motivations */}
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <h4 className="font-semibold text-green-900 text-sm mb-3 flex items-center space-x-2">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                <span>What Drives Them</span>
-              </h4>
-              <ul className="space-y-2">
-                {characterBio.motivations.map((m, idx) => (
-                  <li key={idx} className="text-xs text-green-800 flex items-start space-x-2">
-                    <span>✓</span>
-                    <span>{m}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Stressors */}
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <h4 className="font-semibold text-red-900 text-sm mb-3 flex items-center space-x-2">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-                <span>Current Pressures</span>
-              </h4>
-              <ul className="space-y-2">
-                {characterBio.stressors.map((s, idx) => (
-                  <li key={idx} className="text-xs text-red-800 flex items-start space-x-2">
-                    <span>⚠</span>
-                    <span>{s}</span>
-                  </li>
-                ))}
-              </ul>
             </div>
           </div>
 
-          {/* Communication Style & Triggers */}
-          <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-            <h4 className="font-semibold text-purple-900 text-sm mb-2">Communication Style</h4>
-            <p className="text-sm text-purple-800 mb-4">{characterBio.communicationStyle}</p>
-            
-            <h4 className="font-semibold text-purple-900 text-sm mb-2">⚡ Trigger Points (Avoid These!)</h4>
-            <div className="space-y-1">
-              {characterBio.triggerPoints.map((t, idx) => (
-                <div key={idx} className="text-xs text-purple-800 bg-purple-100 px-3 py-2 rounded">
-                  {t}
-                </div>
+          {/* Employee Context - Combined section */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-5">
+            <h4 className="font-semibold text-blue-900 text-sm mb-3 flex items-center space-x-2">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>Employee Context</span>
+            </h4>
+            <ul className="space-y-2">
+              {characterBio.motivations.slice(0, 1).map((m, idx) => (
+                <li key={`m-${idx}`} className="text-sm text-blue-800 flex items-start space-x-2">
+                  <span className="text-blue-600 mt-1">•</span>
+                  <span>{m}</span>
+                </li>
               ))}
-            </div>
+              {characterBio.stressors.slice(0, 1).map((s, idx) => (
+                <li key={`s-${idx}`} className="text-sm text-blue-800 flex items-start space-x-2">
+                  <span className="text-blue-600 mt-1">•</span>
+                  <span>{s}</span>
+                </li>
+              ))}
+              <li className="text-sm text-blue-800 flex items-start space-x-2">
+                <span className="text-blue-600 mt-1">•</span>
+                <span>{characterBio.communicationStyle}</span>
+              </li>
+            </ul>
           </div>
 
           {/* Prior Feedback History */}
           {characterBio.priorFeedback.length > 0 && (
-            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-5">
               <h4 className="font-semibold text-gray-900 text-sm mb-3">📜 Prior Feedback History</h4>
               <div className="space-y-2">
                 {characterBio.priorFeedback.map((f, idx) => (
-                  <p key={idx} className="text-xs text-gray-700 italic border-l-2 border-gray-300 pl-3">{f}</p>
+                  <p key={idx} className="text-sm text-gray-700 italic border-l-2 border-gray-300 pl-3">{f}</p>
                 ))}
               </div>
             </div>
           )}
+
+          {/* Legal Constraints / Risk Factors */}
+          <div className="bg-red-50 border border-red-200 rounded-lg p-5">
+            <h4 className="font-semibold text-red-900 text-sm mb-3 flex items-center space-x-2">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <span>Legal Constraints / Risk Factors</span>
+            </h4>
+            <ul className="space-y-2">
+              {hiddenGoals.legalConsiderations.slice(0, 3).map((l, idx) => (
+                <li key={idx} className="text-sm text-red-800 flex items-start space-x-2">
+                  <span className="text-red-600 mt-1">•</span>
+                  <span>{l}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       )
     },
     {
       title: '🎯 Your Mission',
-      subtitle: 'Win Conditions',
+      subtitle: 'Objectives',
       component: (
         <div className="space-y-6">
-          {/* Primary Goal */}
+          {/* Primary Objective */}
           <div className="bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-lg p-6">
-            <h4 className="font-bold text-lg mb-2">🎯 Primary Goal</h4>
+            <h4 className="font-bold text-lg mb-2">🎯 Primary Objective</h4>
             <p className="text-primary-50 leading-relaxed">{hiddenGoals.primaryGoal}</p>
           </div>
 
-          {/* Your Goal as Manager */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-5">
-            <h4 className="font-semibold text-blue-900 mb-2">What You're Trying to Achieve</h4>
-            <p className="text-sm text-blue-800">{situationBrief.managerGoal}</p>
-          </div>
-
-          {/* Secondary Goals */}
+          {/* Secondary Objectives */}
           <div className="bg-white border border-gray-200 rounded-lg p-5">
             <h4 className="font-semibold text-gray-900 mb-3">Secondary Objectives</h4>
             <ul className="space-y-2">
@@ -270,104 +230,6 @@ export default function ScenarioBriefing({
                 <li key={idx} className="text-sm text-gray-700 flex items-start space-x-2">
                   <span className="text-primary-600 font-bold mt-0.5">{idx + 1}.</span>
                   <span>{goal}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Relationship Goal */}
-          <div className="bg-green-50 border border-green-200 rounded-lg p-5">
-            <h4 className="font-semibold text-green-900 mb-2 flex items-center space-x-2">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-              </svg>
-              <span>Relationship Goal</span>
-            </h4>
-            <p className="text-sm text-green-800">{hiddenGoals.relationshipGoal}</p>
-          </div>
-
-          {/* Ideal Outcome */}
-          <div className="bg-gradient-to-r from-green-50 to-blue-50 border-2 border-green-300 rounded-lg p-5">
-            <h4 className="font-bold text-green-900 mb-2 flex items-center space-x-2">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>What "Great" Looks Like</span>
-            </h4>
-            <p className="text-sm text-gray-800 leading-relaxed">{hiddenGoals.idealOutcome}</p>
-          </div>
-
-          {/* Learning Objectives */}
-          <div className="bg-purple-50 border border-purple-200 rounded-lg p-5">
-            <h4 className="font-semibold text-purple-900 mb-3">📚 What You'll Practice</h4>
-            <ul className="space-y-2">
-              {objectives.map((obj, idx) => (
-                <li key={idx} className="text-sm text-purple-800 flex items-start space-x-2">
-                  <svg className="w-4 h-4 text-purple-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                  <span>{obj}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      )
-    },
-    {
-      title: '⚠️ Watch Out',
-      subtitle: 'Constraints & Risks',
-      component: (
-        <div className="space-y-6">
-          {/* Constraints */}
-          <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-5">
-            <div className="flex items-center space-x-2 mb-3">
-              <svg className="w-5 h-5 text-yellow-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <h4 className="font-bold text-yellow-900">Constraints</h4>
-            </div>
-            <ul className="space-y-2">
-              {situationBrief.constraints.map((c, idx) => (
-                <li key={idx} className="text-sm text-yellow-900 flex items-start space-x-2">
-                  <span className="font-bold">•</span>
-                  <span>{c}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Risk Factors */}
-          <div className="bg-red-50 border border-red-300 rounded-lg p-5">
-            <div className="flex items-center space-x-2 mb-3">
-              <svg className="w-5 h-5 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-              <h4 className="font-bold text-red-900">Risk Factors (What Could Go Wrong)</h4>
-            </div>
-            <ul className="space-y-2">
-              {situationBrief.riskFactors.map((r, idx) => (
-                <li key={idx} className="text-sm text-red-900 flex items-start space-x-2">
-                  <span className="font-bold">⚠</span>
-                  <span>{r}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Legal Landmines */}
-          <div className="bg-gray-900 text-white rounded-lg p-5">
-            <div className="flex items-center space-x-2 mb-3">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
-              <h4 className="font-bold">🚨 Legal Landmines (Avoid!)</h4>
-            </div>
-            <ul className="space-y-2">
-              {hiddenGoals.legalConsiderations.map((l, idx) => (
-                <li key={idx} className="text-sm text-gray-100 flex items-start space-x-2 bg-gray-800 p-3 rounded">
-                  <span className="text-red-400 font-bold flex-shrink-0">!</span>
-                  <span>{l}</span>
                 </li>
               ))}
             </ul>
