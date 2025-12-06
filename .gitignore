@@ -40,3 +40,9 @@ tmp
 temp
 *.tmp
 
+# Test files
+test-gemini-live.js
+
+# Uploads directory
+uploads/
+
