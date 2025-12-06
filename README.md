@@ -33,8 +33,8 @@ Pathwise transforms executive coaching from episodic engagement to continuous pa
 ### Backend
 - **Runtime**: Node.js + TypeScript
 - **Framework**: Express + WebSocket
-- **AI**: Gemini 1.5 Flash (Google Generative AI)
-- **Voice**: Google Cloud Text-to-Speech (Neural2 voices)
+- **AI**: Gemini 2.0 Flash (Google Generative AI)
+- **Voice**: Gemini Live API (Real-time bidirectional audio) + Google Cloud Text-to-Speech (Neural2 voices)
 - **Multi-Agent**: Custom TypeScript orchestration
 
 ### Frontend
@@ -76,7 +76,8 @@ pathwise/
 
 ### Prerequisites
 - Node.js 18+
-- Gemini API key (get from [Google AI Studio](https://makersuite.google.com/app/apikey))
+- Gemini API key with Live API access (get from [Google AI Studio](https://makersuite.google.com/app/apikey))
+- Note: Gemini Live API requires a compatible version of `@google/generative-ai` package (v0.21.0+)
 
 ### Installation
 
@@ -95,8 +96,10 @@ pathwise/
 
 4. Set up environment variables:
    ```bash
-   cp .env.example .env
-   # Edit .env and add your GEMINI_API_KEY
+   # Create .env file with:
+   GEMINI_API_KEY=your_api_key_here
+   GEMINI_LIVE_MODEL=gemini-live-2.5-flash-preview-native-audio-09-2025
+   PORT=3000
    ```
 
 ### Running the Application
@@ -147,7 +150,8 @@ Practice delivering feedback to an underperforming employee:
 - [x] Multi-agent system (Employee + HR)
 - [x] Scenario engine with performance review
 - [x] React frontend with chat + dashboard
-- [ ] WebSocket integration
+- [x] WebSocket integration
+- [x] Gemini Live real-time voice chat
 - [ ] Full end-to-end testing
 
 ### Phase 2: Beta

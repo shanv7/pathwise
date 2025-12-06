@@ -8,6 +8,7 @@ import { ScenarioEngine } from '../engine/engine.js';
 import { performanceReviewScenario, getAllScenarios, getScenarioById } from '../engine/scenarios/index.js';
 import { createLLMProvider } from '../llm/index.js';
 import { getVoiceGenerator, VoiceProfile } from '../audio/voiceGenerator.js';
+import { getGeminiLiveService, type GeminiLiveSession } from '../audio/geminiLive.js';
 
 const app = express();
 const server = createServer(app);
@@ -17,7 +18,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // CORS for development
-app.use((req, res, next) => {
+app.use((_req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
   next();
@@ -97,8 +98,17 @@ app.use('/api/audio', audioRouter);
 // WebSocket server
 const wss = new WebSocketServer({ server });
 
-// Store active engines per connection
+// Store active engines per connection (for text-based scenarios)
 const activeEngines = new Map<WebSocket, ScenarioEngine>();
+
+// Store active Gemini Live sessions per connection (for voice scenarios)
+const activeLiveSessions = new Map<WebSocket, GeminiLiveSession>();
+
+// Store scenario context for voice sessions (for metrics tracking)
+const voiceScenarioContext = new Map<WebSocket, {
+  scenarioId: string;
+  transcripts: Array<{ text: string; isUser: boolean; timestamp: Date }>;
+}>();
 
 wss.on('connection', (ws) => {
   logger.info('WebSocket client connected');
@@ -217,6 +227,160 @@ wss.on('connection', (ws) => {
           break;
         }
 
+        case 'start_voice_scenario': {
+          try {
+            const scenarioId = message.scenarioId || 'perf-review-001';
+            const scenario = getScenarioById(scenarioId);
+
+            if (!scenario) {
+              ws.send(JSON.stringify({
+                type: 'error',
+                message: `Scenario not found: ${scenarioId}`
+              }));
+              return;
+            }
+
+            // Create Gemini Live session with scenario context
+            const liveService = getGeminiLiveService();
+            const liveSession = await liveService.createSession(scenario, {
+              employeeName: message.context?.employeeName,
+              situationBrief: message.context?.situationBrief
+            });
+
+            // Set up audio chunk handler
+            liveSession.onAudioChunk((chunk) => {
+              // Send audio chunk to client as base64
+              const base64Chunk = Buffer.from(chunk).toString('base64');
+              ws.send(JSON.stringify({
+                type: 'audio_chunk',
+                data: base64Chunk,
+                mimeType: 'audio/webm;codecs=opus'
+              }));
+            });
+
+            // Set up transcript handler
+            liveSession.onTranscript((transcript, isUser) => {
+              // Store transcript for metrics tracking
+              const context = voiceScenarioContext.get(ws);
+              if (context) {
+                context.transcripts.push({
+                  text: transcript,
+                  isUser,
+                  timestamp: new Date()
+                });
+              }
+
+              // Send transcript to client
+              ws.send(JSON.stringify({
+                type: 'transcript',
+                text: transcript,
+                isUser
+              }));
+            });
+
+            // Set up error handler
+            liveSession.onError((error) => {
+              logger.error('Gemini Live session error:', error);
+              ws.send(JSON.stringify({
+                type: 'error',
+                message: `Live session error: ${error.message}`
+              }));
+            });
+
+            // Store session
+            activeLiveSessions.set(ws, liveSession);
+            voiceScenarioContext.set(ws, {
+              scenarioId,
+              transcripts: []
+            });
+
+            // Send confirmation
+            ws.send(JSON.stringify({
+              type: 'voice_scenario_started',
+              scenario: {
+                id: scenario.id,
+                name: scenario.name,
+                employeeName: scenario.characterBio?.name || scenario.defaultContext.employeeName || 'Alex'
+              }
+            }));
+
+            logger.info('Voice scenario started', { scenarioId, scenarioName: scenario.name });
+          } catch (error) {
+            logger.error('Error starting voice scenario:', error);
+            ws.send(JSON.stringify({
+              type: 'error',
+              message: `Failed to start voice scenario: ${error instanceof Error ? error.message : 'Unknown error'}`
+            }));
+          }
+          break;
+        }
+
+        case 'send_audio_chunk': {
+          const liveSession = activeLiveSessions.get(ws);
+          if (!liveSession) {
+            ws.send(JSON.stringify({
+              type: 'error',
+              message: 'No active voice scenario. Please start a voice scenario first.'
+            }));
+            return;
+          }
+
+          try {
+            // Decode base64 audio chunk
+            const audioData = Buffer.from(message.data, 'base64');
+            const audioChunk = new Uint8Array(audioData);
+
+            // Send to Gemini Live
+            await liveSession.sendAudioChunk(audioChunk);
+          } catch (error) {
+            logger.error('Error sending audio chunk:', error);
+            ws.send(JSON.stringify({
+              type: 'error',
+              message: `Failed to send audio chunk: ${error instanceof Error ? error.message : 'Unknown error'}`
+            }));
+          }
+          break;
+        }
+
+        case 'end_voice_scenario': {
+          const liveSession = activeLiveSessions.get(ws);
+          if (!liveSession) {
+            ws.send(JSON.stringify({
+              type: 'error',
+              message: 'No active voice scenario to end.'
+            }));
+            return;
+          }
+
+          try {
+            // Close the live session
+            await liveSession.close();
+
+            // Get transcripts for reporting
+            const context = voiceScenarioContext.get(ws);
+            const transcripts = context?.transcripts || [];
+
+            // Clean up
+            activeLiveSessions.delete(ws);
+            voiceScenarioContext.delete(ws);
+
+            // Send confirmation
+            ws.send(JSON.stringify({
+              type: 'voice_scenario_ended',
+              transcriptCount: transcripts.length
+            }));
+
+            logger.info('Voice scenario ended', { transcriptCount: transcripts.length });
+          } catch (error) {
+            logger.error('Error ending voice scenario:', error);
+            ws.send(JSON.stringify({
+              type: 'error',
+              message: `Failed to end voice scenario: ${error instanceof Error ? error.message : 'Unknown error'}`
+            }));
+          }
+          break;
+        }
+
         default:
           logger.warn('Unknown message type:', message.type);
       }
@@ -229,9 +393,25 @@ wss.on('connection', (ws) => {
     }
   });
 
-  ws.on('close', () => {
+  ws.on('close', async () => {
     logger.info('WebSocket client disconnected');
+    
+    // Clean up text scenario engine
     activeEngines.delete(ws);
+    
+    // Clean up voice scenario session
+    const liveSession = activeLiveSessions.get(ws);
+    if (liveSession) {
+      try {
+        await liveSession.close();
+      } catch (error) {
+        logger.error('Error closing live session on disconnect:', error);
+      }
+      activeLiveSessions.delete(ws);
+    }
+    
+    // Clean up voice scenario context
+    voiceScenarioContext.delete(ws);
   });
 
   ws.on('error', (error) => {
