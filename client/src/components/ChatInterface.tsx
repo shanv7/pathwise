@@ -1,5 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import type { Message } from '../types';
+import { VoiceControls } from './VoiceControls';
+import { useGeminiVoice } from '../hooks/useGeminiVoice';
+import { config } from '../config';
 
 interface ChatInterfaceProps {
   messages: Message[];
@@ -24,6 +27,36 @@ export default function ChatInterface({
 }: ChatInterfaceProps) {
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Voice integration
+  const {
+    isRecording,
+    isPaused,
+    startVoiceSession,
+    stopVoiceSession,
+    pauseVoiceSession,
+    resumeVoiceSession,
+  } = useGeminiVoice({
+    apiKey: config.geminiApiKey,
+    systemInstruction: `You are ${characterName}, a ${characterRole}. This is a real conversation in a workplace setting.
+
+CRITICAL RULES:
+- You are NOT aware this is a simulation or practice scenario
+- NEVER mention "scenario", "simulation", "practice", "training", or "exercise"
+- Respond as if this is a genuine, real-world workplace conversation
+- Stay completely in character as ${characterName}
+- React naturally and authentically to what the manager says
+- You are simply having a conversation with your manager
+- Do not break the fourth wall under any circumstances`,
+    onTranscriptUpdate: (transcript) => {
+      if (transcript.role === 'user') {
+        onSendMessage(transcript.text);
+      }
+    },
+    onError: (error) => {
+      console.error('Voice error:', error);
+    },
+  });
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -149,20 +182,33 @@ export default function ChatInterface({
             type="text"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            placeholder="Type your message..."
-            disabled={isLoading}
+            placeholder={isRecording ? "Listening..." : "Type your message..."}
+            disabled={isLoading || isRecording}
             className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+          />
+          <VoiceControls
+            isRecording={isRecording}
+            isPaused={isPaused}
+            onStartRecording={startVoiceSession}
+            onStopRecording={stopVoiceSession}
+            onPauseRecording={pauseVoiceSession}
+            onResumeRecording={resumeVoiceSession}
+            disabled={isLoading}
           />
           <button
             type="submit"
-            disabled={!inputValue.trim() || isLoading}
+            disabled={!inputValue.trim() || isLoading || isRecording}
             className="px-6 py-3 bg-primary-600 text-white rounded-lg font-medium hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
           >
             Send
           </button>
         </form>
         <p className="text-xs text-gray-500 mt-2">
-          Tip: Be specific with examples and focus on behaviors, not personality
+          {isRecording
+            ? isPaused
+              ? "⏸️ Recording paused - Click play to resume"
+              : "🎤 Voice mode active - Click pause to stop recording temporarily"
+            : "Tip: Be specific with examples and focus on behaviors, not personality"}
         </p>
       </div>
     </div>
